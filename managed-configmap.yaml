@@ -1,0 +1,16 @@
+apiVersion: kubernetes.crossplane.io/v1alpha2
+kind: Object
+metadata:
+  name: mi-primer-mr
+spec:
+  providerConfigRef:
+    name: default
+  forProvider:
+    manifest:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: configmap-gestionado-por-crossplane
+        namespace: default
+      data:
+        mensaje: "Mensaje actualizado desde Crossplane!"

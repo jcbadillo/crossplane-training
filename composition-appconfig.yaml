@@ -1,0 +1,46 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: composition-appconfig-local
+spec:
+  compositeTypeRef:
+    apiVersion: miempresa.io/v1alpha1
+    kind: xAppConfig
+  mode: Pipeline
+  pipeline:
+  - step: patch-and-transform
+    functionRef:
+      name: function-patch-and-transform
+    input:
+      apiVersion: pt.fn.crossplane.io/v1beta1
+      kind: Resources
+      resources:
+      - name: configmap-app
+        base:
+          apiVersion: kubernetes.crossplane.io/v1alpha2
+          kind: Object
+          spec:
+            providerConfigRef:
+              name: default
+            forProvider:
+              manifest:
+                apiVersion: v1
+                kind: ConfigMap
+                metadata:
+                  name: config-app-desplregada
+                  namespace: default
+                data:
+                  app_name: "MiAppCorporativa"
+        patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.entorno
+          toFieldPath: spec.forProvider.manifest.data.entorno
+        # Parche del puerto CON TRANSFORMACIÓN A STRING
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.puerto
+          toFieldPath: spec.forProvider.manifest.data.puerto
+          transforms:
+          - type: string
+            string:
+              type: Format
+              fmt: "%d"

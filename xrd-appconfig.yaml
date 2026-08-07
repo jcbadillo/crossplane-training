@@ -1,0 +1,32 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: xappconfigs.miempresa.io
+spec:
+  group: miempresa.io
+  names:
+    kind: xAppConfig
+    plural: xappconfigs
+  claimNames:
+    kind: AppConfig
+    plural: appconfigs
+  versions:
+  - name: v1alpha1
+    served: true
+    referenceable: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              entorno:
+                type: string
+                description: "Entorno de la app: dev, staging, prod"
+              puerto:
+                type: integer
+                description: "Puerto de red de la aplicacion"
+            required:
+            - entorno
+            - puerto

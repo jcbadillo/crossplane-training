@@ -1,0 +1,8 @@
+apiVersion: miempresa.io/v1alpha1
+kind: AppConfig
+metadata:
+  name: mi-app-dev
+  namespace: default
+spec:
+  entorno: "desarrollo"
+  puerto: 8080

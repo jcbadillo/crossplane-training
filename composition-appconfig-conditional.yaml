@@ -1,0 +1,77 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: composition-appconfig-local
+spec:
+  compositeTypeRef:
+    apiVersion: miempresa.io/v1alpha1
+    kind: xAppConfig
+  mode: Pipeline
+  pipeline:
+  - step: patch-and-transform
+    functionRef:
+      name: function-patch-and-transform
+    input:
+      apiVersion: pt.fn.crossplane.io/v1beta1
+      kind: Resources
+      resources:
+      # Recurso 1: ConfigMap Principal
+      - name: configmap-app
+        base:
+          apiVersion: kubernetes.crossplane.io/v1alpha2
+          kind: Object
+          spec:
+            providerConfigRef:
+              name: default
+            forProvider:
+              manifest:
+                apiVersion: v1
+                kind: ConfigMap
+                metadata:
+                  name: config-app-desplregada
+                  namespace: default
+                data:
+                  app_name: "MiAppCorporativa"
+        patches:
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.entorno
+          toFieldPath: spec.forProvider.manifest.data.entorno
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.puerto
+          toFieldPath: spec.forProvider.manifest.data.puerto
+          transforms:
+          - type: string
+            string:
+              type: Format
+              fmt: "%d"
+
+      # Recurso 2: ConfigMap de Almacenamiento (Simulado)
+      # Solo se parchea la configuracion de storage si el usuario activa la opcion
+      - name: storage-config
+        base:
+          apiVersion: kubernetes.crossplane.io/v1alpha2
+          kind: Object
+          spec:
+            providerConfigRef:
+              name: default
+            forProvider:
+              manifest:
+                apiVersion: v1
+                kind: ConfigMap
+                metadata:
+                  name: config-storage-adicional
+                  namespace: default
+                data:
+                  storage_type: "persistent-volume"
+        patches:
+        # Parche con política opcional: Si spec.necesitaStorage no está definido, no rompe la reconciliación
+        - type: FromCompositeFieldPath
+          fromFieldPath: spec.necesitaStorage
+          toFieldPath: spec.forProvider.manifest.data.storage_enabled
+          policy:
+            fromFieldPath: Optional
+          transforms:
+          - type: string
+            string:
+              type: Format
+              fmt: "%v"

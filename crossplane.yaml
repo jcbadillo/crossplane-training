@@ -1,0 +1,18 @@
+apiVersion: meta.pkg.crossplane.io/v1
+kind: Configuration
+metadata:
+  name: platform-appconfig
+  annotations:
+    meta.crossplane.io/maintainer: jcbadillo Platform Team
+    meta.crossplane.io/source: github.com/jcbadillo/crossplane-training
+    meta.crossplane.io/license: Apache-2.0
+    meta.crossplane.io/description: |
+      Paquete de plataforma que expone la API AppConfig para despliegue de aplicaciones.
+spec:
+  crossplane:
+    version: ">=v1.14.0"
+  dependsOn:
+    - provider: xpkg.upbound.io/crossplane-contrib/provider-kubernetes
+      version: ">=v0.11.0"
+    - function: xpkg.upbound.io/crossplane-contrib/function-patch-and-transform
+      version: ">=v0.5.0"
